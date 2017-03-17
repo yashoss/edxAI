@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -72,6 +72,37 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+# Continue depth first down path, return boolean if path leads to solution
+# problem: contains provided functions
+# node: current state being visited
+# visited: dictionary pointing to true if state has been visited already
+# path: list of paths to current state
+def DFS(problem, node, visited, path):
+    # Add current node to visited list
+    visited[node[0]] = True
+    # Get child states
+    successors = problem.getSuccessors(node[0])
+    # Return false if no child states are found (path doesn't lead to solution)
+    if (not successors):
+        return False
+
+    for child in successors:
+        # Add path to child state to solution
+        path.append(child[1])
+        # Return true if path leads to solution
+        if (problem.isGoalState(child[0])):
+            return True
+        # Continue down tree if state has not been visited
+        elif (not visited.get(child[0], False)):
+            if (not DFS(problem, child, visited, path)):
+                next
+            else:
+                return True
+        # Remove paths that don't lead to solution
+        path.pop()
+
+    return False
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -87,12 +118,49 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Starting state
+    node = problem.getStartState()
+    # Start with initial state visited
+    visited = {node: True}
+    solution = []
+    # Iterate through all child states (paths)
+    # State = (position, path to position 'A -> B', cost)
+    for child in problem.getSuccessors(node):
+        # Add first action to solution
+        solution.append(child[1])
+        if (DFS(problem, child, visited, solution)):
+            break
+        # Remove path that didn't lead to solution
+        solution.pop()
+    return solution
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import Queue
+    # Starting state
+    node = problem.getStartState()
+    # Start with initial state visited
+    visited = {node: True}
+    q = Queue()
+    for child in problem.getSuccessors(node):
+        q.push((child, [child[1]]))
+        visited[child[0]] = True
+    # Iterate through all child states (paths)
+    # State = (position, path to position 'A -> B', cost)
+    while (not Queue.isEmpty(q)):
+        state = q.pop()
+        if (problem.isGoalState(state[0][0])):
+            # Return solution
+            return state[1]
+
+        for child in problem.getSuccessors(state[0][0]):
+            if (not visited.get(child[0], False)):
+                path = list(state[1])
+                path.append(child[1])
+                q.push((child, path))
+                visited[child[0]] = True
+    return []
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
