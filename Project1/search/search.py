@@ -165,7 +165,36 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue
+    # Starting state
+    node = problem.getStartState()
+    # Start with initial state visited
+    visited = {node: True}
+    paths = {node: ([], 0)}
+    q = PriorityQueue()
+    for child in problem.getSuccessors(node):
+        cost = paths[node][1] + child[2]
+        path = list(paths[node][0])
+        path.append(child[1])
+        if(q.update(child[0], cost)):
+            paths[child[0]] = (path, cost)
+    # Iterate through all child states (paths)
+    # State = (position, path to position 'A -> B', cost)
+    while (not PriorityQueue.isEmpty(q)):
+        state = q.pop()
+        if (problem.isGoalState(state)):
+            # Return solution
+            return paths[state][0]
+
+        for child in problem.getSuccessors(state):
+            cost = paths[state][1] + child[2]
+            path = list(paths[state][0])
+            path.append(child[1])
+            if (not visited.get(child[0], False)):
+                if (q.update(child[0], cost)):
+                    paths[child[0]] = (path, cost)
+        visited[state] = True
+    return []
 
 def nullHeuristic(state, problem=None):
     """
@@ -177,7 +206,39 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue
+    # Starting state
+    node = problem.getStartState()
+    # Start with initial state visited
+    visited = {node: True}
+    h1 = heuristic(node, problem)
+    paths = {node: ([], 0)}
+    q = PriorityQueue()
+    for child in problem.getSuccessors(node):
+        h2 = heuristic(child[0], problem)
+        cost = paths[node][1] + child[2] + h2 - h1
+        path = list(paths[node][0])
+        path.append(child[1])
+        if(q.update(child[0], cost)):
+            paths[child[0]] = (path, cost)
+    # Iterate through all child states (paths)
+    # State = (position, path to position 'A -> B', cost)
+    while (not PriorityQueue.isEmpty(q)):
+        state = q.pop()
+        if (problem.isGoalState(state)):
+            # Return solution
+            return paths[state][0]
+        h1 = heuristic(state, problem)
+        for child in problem.getSuccessors(state):
+            h2 = heuristic(child[0], problem)
+            cost = paths[state][1] + child[2] + h2 - h1
+            path = list(paths[state][0])
+            path.append(child[1])
+            if (not visited.get(child[0], False)):
+                if (q.update(child[0], cost)):
+                    paths[child[0]] = (path, cost)
+        visited[state] = True
+    return []
 
 
 # Abbreviations
